@@ -501,6 +501,11 @@ document.addEventListener('click', (e) => {
 
 window.addEventListener('resize', measure);
 
+// 离线：注册 service worker，断网也能开
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  navigator.serviceWorker.register('sw.js');
+}
+
 // 启动
 load();
 measure();
