@@ -1,5 +1,5 @@
 // 离线缓存。改了 index.html 之后把 V 加一，手机才会更新。
-const V = 'v2';
+const V = 'v3';
 const CACHE = `workbench-${V}`;
 const SHELL = ['./', './index.html', './icon-192.png', './icon-512.png'];
 
