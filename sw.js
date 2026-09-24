@@ -1,7 +1,7 @@
 // 离线缓存。改了 index.html 之后把 V 加一，手机才会更新。
-const V = 'v1';
+const V = 'v2';
 const CACHE = `workbench-${V}`;
-const SHELL = ['./', './index.html', './manifest.json'];
+const SHELL = ['./', './index.html', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
