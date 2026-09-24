@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F7F5F0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="学习工作台">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%E5%AD%A6%E4%B9%A0%E5%B7%A5%E4%BD%9C%E5%8F%B0%22%2C%22short_name%22%3A%22%E5%B7%A5%E4%BD%9C%E5%8F%B0%22%2C%22start_url%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%23F7F5F0%22%2C%22theme_color%22%3A%22%23F7F5F0%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fsvg%2Bxml%2C%253Csvg%2520xmlns%253D%2527http%253A%2F%2Fwww.w3.org%2F2000%2Fsvg%2527%2520viewBox%253D%25270%25200%2520512%2520512%2527%253E%253Crect%2520width%253D%2527512%2527%2520height%253D%2527512%2527%2520rx%253D%2527112%2527%2520fill%253D%2527%25236B4FE0%2527%2F%253E%253Ctext%2520x%253D%2527256%2527%2520y%253D%2527346%2527%2520font-size%253D%2527256%2527%2520text-anchor%253D%2527middle%2527%2520fill%253D%2527white%2527%2520font-family%253D%2527sans-serif%2527%253E%25E9%259B%25AB%253C%2Ftext%253E%253C%2Fsvg%253E%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fsvg%2Bxml%22%2C%22purpose%22%3A%22any%22%7D%5D%7D">
+<title>雫的学习工作台</title>
+<style>
+/* ==========================================================================
+   块 1 · 样式
+   配色照抄 `雫的学习工作台-可点击演示.html` 的 :root，不改设计。
+   两端：<900px 手机（底部导航），>=900px 电脑（左侧栏）。
+   ========================================================================== */
+:root{
+  --bg:#F7F5F0; --card:#EEF3FA; --line:#C9D9EC;
+  --gcard:#F2F1EE; --gline:#DDD9D2;
+  --ink:#16324F; --mut:#7C8CA0;
+  --pur:#6B4FE0; --blu:#2F6FD0;
+  --plight:#EDE8FB; --pline:#CFC5EE;
+  --track:#DCE7F5; --gtrack:#E2DFD8;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;font-size:14px}
+button{font:inherit;font-size:13px}
+
+/* 骨架：窄屏纵向，宽屏横向 */
+.frame{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+.side{display:none}
+.main{flex:1;min-height:0;display:flex;flex-direction:column}
+.pagehead{display:none}
+.content{flex:1;min-height:0;overflow-y:auto;padding:12px 20px 20px}
+.tab{flex:0 0 auto;display:flex;justify-content:space-between;background:var(--bg);
+  border-top:0.5px solid #DCD8D0;padding:11px 20px calc(11px + env(safe-area-inset-bottom,0px))}
+.tab button{border:0;background:none;padding:0;color:var(--mut);cursor:pointer}
+.tab button.on{color:var(--ink);font-weight:600}
+.fab{position:fixed;right:26px;bottom:82px;width:52px;height:52px;border-radius:50%;
+  background:var(--pur);color:#fff;font-size:15px;border:0;cursor:pointer;z-index:5;
+  box-shadow:0 2px 8px rgba(0,0,0,.12)}
+.hidden{display:none!important}
+
+/* 页头 */
+.phead{display:flex;justify-content:space-between;align-items:baseline;margin:2px 0 12px}
+.phead h2{font-size:18px;font-weight:600;margin:0}
+.phead span{font-size:12px;color:var(--mut)}
+
+/* 四线卡片 */
+.cards{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border:0.5px solid var(--line);border-radius:18px;padding:14px;
+  cursor:pointer;display:flex;flex-direction:column;transition:transform .08s}
+.card:active{transform:scale(.99)}
+.card.gray{background:var(--gcard);border-color:var(--gline)}
+.crow{display:flex;align-items:center;justify-content:space-between}
+.cname{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:600}
+.dot{width:18px;height:18px;border-radius:5px;display:block}
+.dot.pur{background:var(--pur)}.dot.blu{background:var(--blu)}.dot.gray{background:#A9A79E}
+.cpct{font-size:12px;color:var(--mut)}
+.cnum{font-size:28px;font-weight:600;margin:8px 0 10px;letter-spacing:-.3px}
+.cnum em{font-style:normal;font-size:12px;font-weight:400;color:var(--mut)}
+.bar-track{height:10px;border-radius:999px;background:var(--track);overflow:hidden}
+.card.gray .bar-track{background:var(--gtrack)}
+.bar-fill{height:10px;border-radius:999px;transition:width .3s}
+.bar-fill.pur{background:var(--pur)}.bar-fill.blu{background:var(--blu)}.bar-fill.gray{background:#A9A79E}
+.ctoday{font-size:12px;color:var(--mut);margin-top:auto;padding-top:10px}
+
+/* 通用块 */
+.banner{background:var(--plight);border:0.5px solid var(--pline);border-radius:16px;padding:13px 14px;margin-bottom:12px}
+.banner h3{font-size:14px;font-weight:600;margin:0 0 9px}
+.banner p{font-size:13px;margin:0 0 6px;display:flex;gap:10px}
+.banner p:last-child{margin:0}
+.banner p em{font-style:normal;color:var(--mut);min-width:44px}
+.banner p.off{color:#8A8578}
+.tile{background:var(--card);border:0.5px solid var(--line);border-radius:16px;padding:13px 14px;
+  margin-bottom:10px;text-align:left;width:100%;display:block;font:inherit;color:inherit;cursor:pointer}
+.tile h4{font-size:14px;font-weight:600;margin:0 0 4px}
+.tile p{font-size:12px;color:var(--mut);margin:0}
+.dash{border:1px dashed #C4BEB4;border-radius:16px;padding:13px;text-align:center;font-size:13px;
+  color:var(--mut);margin-bottom:10px;cursor:pointer;width:100%;background:none;font-family:inherit}
+.feedback{background:var(--card);border:0.5px solid var(--line);border-radius:16px;
+  padding:13px 14px;font-size:13px;color:var(--mut);cursor:pointer}
+.tabs{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto}
+.tabs button{flex:1;padding:7px 0;border-radius:9px;border:0.5px solid transparent;
+  background:var(--gcard);color:var(--mut);cursor:pointer;white-space:nowrap}
+.tabs button.on{background:var(--plight);color:var(--pur);font-weight:600}
+.cd{background:var(--card);border:0.5px solid var(--line);border-radius:16px;padding:12px 14px;margin-bottom:10px}
+.cd .k{font-size:12px;color:var(--mut)}
+.cd .v{font-size:26px;font-weight:600}
+.cd .v em{font-style:normal;font-size:12px;font-weight:400;color:var(--mut)}
+.two{display:flex;gap:10px;margin-bottom:10px}
+.two .tile{margin:0;flex:1}
+.two .tile p{font-size:13px;color:var(--ink);margin-top:6px}
+.list{background:#fff;border:0.5px solid var(--line);border-radius:16px;overflow:hidden;margin-bottom:10px}
+.list div{display:flex;justify-content:space-between;padding:11px 14px;font-size:13px;
+  border-bottom:0.5px solid var(--line)}
+.list div:last-child{border:0}
+.list div span{color:var(--mut)}
+.input{width:100%;background:var(--card);border:0.5px solid var(--line);border-radius:16px;
+  padding:13px 14px;font:inherit;font-size:13px;color:var(--ink);margin-bottom:10px}
+.input::placeholder{color:var(--mut)}
+.item{background:#fff;border:0.5px solid var(--line);border-radius:14px;padding:11px 13px;margin-bottom:8px}
+.item .t{font-size:11px;color:var(--mut);margin-bottom:4px}
+.item .c{font-size:13px}
+.me-grid{display:flex;flex-direction:column}
+
+/* 悬浮窗：点「问」弹出来，不是提示条 */
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--bg);
+  border-top:0.5px solid var(--line);border-radius:20px 20px 0 0;padding:16px 20px calc(16px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 -4px 24px rgba(0,0,0,.10);transform:translateY(110%);transition:transform .22s}
+.sheet.on{transform:none}
+.sheet .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+.sheet .row b{font-size:14px}
+.sheet .row button{border:0;background:none;color:var(--mut);cursor:pointer;padding:0}
+.sheet .go{width:100%;padding:13px;border:0;border-radius:14px;background:var(--pur);color:#fff;
+  font-size:14px;cursor:pointer;margin-top:10px}
+.is-wide .sheet{left:50%;width:620px;margin-left:-310px;border-radius:20px;bottom:28px}
+
+/* 提示条 */
+.toast{position:fixed;left:50%;bottom:38px;transform:translateX(-50%);background:var(--ink);color:#fff;
+  font-size:13px;padding:12px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:.25s;
+  max-width:520px;line-height:1.6;z-index:50}
+.toast.on{opacity:1}
+
+/* ---------- 宽屏：导航搬侧面，内容多栏 ---------- */
+.is-wide .frame{flex-direction:row;max-width:1440px;margin:0 auto;width:100%}
+.is-wide .side{display:flex;flex-direction:column;width:190px;flex:0 0 auto;
+  background:var(--gcard);border-right:0.5px solid var(--gline);padding:22px 12px}
+.is-wide .side button{border:0;background:none;text-align:left;font-size:14px;color:var(--mut);
+  padding:11px 14px;border-radius:8px;cursor:pointer;margin-bottom:3px}
+.is-wide .side button.on{background:var(--plight);color:var(--ink);font-weight:600;
+  box-shadow:inset 4px 0 0 var(--pur)}
+.is-wide .side .sep{height:0.5px;background:var(--gline);margin:14px 10px}
+.is-wide .main{padding:24px 32px}
+.is-wide .pagehead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:18px}
+.is-wide .pagehead h2{font-size:20px;font-weight:600;margin:0}
+.is-wide .pagehead span{font-size:13px;color:var(--mut)}
+.is-wide .phead{display:none}
+.is-wide .content{padding:0}
+.is-wide .tab{display:none}
+.is-wide .cards{flex-direction:row;gap:16px}
+.is-wide .cards .card{flex:1}
+.is-wide .me-grid{flex-direction:row;gap:16px}
+.is-wide .me-grid .tile{flex:1;margin:0}
+.is-wide .two{gap:16px}
+.is-wide .fab{right:44px;bottom:44px}
+</style>
+</head>
+<body>
+
+<!-- 骨架：左右两侧各渲染一份导航，靠 CSS 决定显示哪个 -->
+<div class="frame">
+  <aside class="side" id="sideNav"></aside>
+  <div class="main">
+    <div class="pagehead" id="pageHead"></div>
+    <div class="content" id="content"></div>
+  </div>
+  <nav class="tab" id="tabNav"></nav>
+</div>
+<button class="fab hidden" id="fab" data-act="ask">问</button>
+<div class="sheet" id="sheet">
+  <div class="row"><b>问 Agent</b><button data-act="close">收起</button></div>
+  <textarea class="input" id="askIn" rows="4" placeholder="把题目 / 疑问丢进来，写完发我…"></textarea>
+  <button class="go" data-act="send">记下，发给你</button>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ==========================================================================
+   块 2 · 状态
+   全部状态集中在这里。页面只读它、只通过 set() 改它。
+   加功能时在这里加字段，别在渲染函数里存东西。
+   ========================================================================== */
+const LINES = ['英语', '日语', '电网', 'Agent'];
+
+const state = {
+  page: 'home',          // home | today | learn | note | me
+  line: LINES[0],        // 学习页当前选中的线
+  data: {
+    ledger: [],          // 账本行：{date,line,source,summary,lastTested,correctCount,nextReview,status}
+    todayDocs: [],       // 今日文档摘要：{line, reviewCount, hasTask, exists}
+    notes: []            // 随手记：{t, c}
+  }
+};
+
+const set = (patch) => {
+  Object.assign(state, patch);
+  render();
+};
+
+/* ==========================================================================
+   块 3 · 工具
+   ========================================================================== */
+const esc = (s) => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+const today = () => {
+  const d = new Date(), p = (n) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+};
+const fancyDate = () => {
+  const d = new Date();
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
+};
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.innerHTML = msg;
+  t.classList.add('on');
+  clearTimeout(t._);
+  t._ = setTimeout(() => t.classList.remove('on'), 3600);
+}
+
+// 存储：localStorage，单键存整个 state.data
+const STORE_KEY = 'shizuku-workbench-v1';
+function save() {
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(state.data)); } catch (e) {}
+}
+function load() {
+  try {
+    const raw = localStorage.getItem(STORE_KEY);
+    if (raw) Object.assign(state.data, JSON.parse(raw));
+  } catch (e) {}
+}
+
+// 导出 / 导入：把 data 存成 json 文件，或从 json 读回
+function exportJson() {
+  const blob = new Blob([JSON.stringify(state.data, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `学习工作台-${today()}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('已导出 json。发给我即可写回 Obsidian。');
+}
+function importJson() {
+  const inp = document.createElement('input');
+  inp.type = 'file';
+  inp.accept = '.json,application/json';
+  inp.onchange = () => {
+    const f = inp.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => {
+      try {
+        Object.assign(state.data, JSON.parse(r.result));
+        save(); render();
+        toast('已导入。');
+      } catch (e) { toast('这个 json 读不了。'); }
+    };
+    r.readAsText(f);
+  };
+  inp.click();
+}
+
+// 按「线」算统计，供主页和学习页共用
+function statsOf(name) {
+  const mine = state.data.ledger.filter((r) => r.line === name);
+  const queue = mine.filter((r) => r.status !== '已掌握');
+  const mastered = mine.filter((r) => r.status === '已掌握');
+  const d = today();
+  const due = queue.filter((r) => r.nextReview && r.nextReview <= d);
+  return {
+    id: name, name,
+    total: mine.length, queue: queue.length, mastered: mastered.length,
+    due: due.length,
+    overdue: due.filter((r) => r.nextReview < d).length,
+    started: mine.length > 0,
+    pct: mine.length ? Math.round((mastered.length / mine.length) * 100) : 0
+  };
+}
+
+/* ==========================================================================
+   块 4 · 页面渲染
+   一个页面一个函数。加页只需：写 renderXxx + 注册到 PAGES。
+   每个函数只读 state，返回 html 字符串，不碰 DOM。
+   ========================================================================== */
+const CD = (k, v, unit) =>
+  `<div class="cd"><div class="k">${esc(k)}</div><div class="v">${esc(v)}<em>${esc(unit)}</em></div></div>`;
+
+function renderHome() {
+  const snap = LINES.map(statsOf);
+  const cards = snap.map((s) => {
+    const cls = s.started ? '' : ' gray';
+    const dot = !s.started ? 'gray' : (s.overdue ? 'pur' : 'blu');
+    const right = s.started ? `${s.pct}%` : '未启动';
+    const cur = s.started ? String(s.queue) : '0';
+    const tot = s.started ? String(s.total) : '—';
+    const note = !s.started ? '等你导入'
+      : (s.overdue ? `逾期 ${s.overdue} 条 · 待复检 ${s.due}`
+      : (s.due ? `待复检 ${s.due} 条` : '今日无复检'));
+    return `<div class="card${cls}" data-line="${esc(s.id)}">
+      <div class="crow"><div class="cname"><i class="dot ${dot}"></i>${esc(s.name)}</div>
+      <div class="cpct">${esc(right)}</div></div>
+      <div class="cnum">${esc(cur)}<em> /${esc(tot)}</em></div>
+      <div class="bar-track"><div class="bar-fill ${dot}" style="width:${s.pct}%"></div></div>
+      <div class="ctoday">今天 · ${esc(note)}</div></div>`;
+  }).join('');
+
+  const empty = snap.every((s) => !s.started);
+  const extra = empty
+    ? `<div class="tile"><h4>还没有数据</h4><p>账本为空。先「导入」材料，或手动加一条错题。</p></div>`
+    : `<div class="tile"><h4>待复检</h4>${snap.filter((s) => s.started)
+        .map((s) => `<p>${esc(s.name)}　${s.due} 条${s.overdue ? `（逾期 ${s.overdue}）` : ''}</p>`)
+        .join('')}</div>`;
+
+  return `<div class="phead"><h2>主页</h2><span>${fancyDate()}</span></div>
+    <div class="cards">${cards}</div>${extra}`;
+}
+
+function renderToday() {
+  const docs = state.data.todayDocs;
+  const rows = LINES.map((line) => {
+    const doc = docs.find((x) => x.line === line);
+    const s = statsOf(line);
+    const exists = doc && doc.exists;
+    const body = !exists ? '今日文档未生成'
+      : (doc.reviewCount ? `复检 ${doc.reviewCount} 条` : '无到期复检');
+    return `<p class="${(!exists || !s.started) ? 'off' : ''}"><em>${esc(line)}</em>${esc(body)}</p>`;
+  }).join('');
+  const missing = LINES.filter((l) => !docs.find((x) => x.line === l && x.exists)).length;
+
+  return `<div class="phead"><h2>今日</h2><span>${fancyDate()}</span></div>
+    <div class="banner"><h3>今日任务</h3>${rows}</div>
+    ${missing ? `<button class="dash" data-act="gen">+ 生成今日文档（缺 ${missing} 条线）</button>` : ''}
+    <button class="dash" data-act="import">+ 导入（试卷 / 教材 / 词书 / 路线）</button>
+    <div class="feedback" data-act="feedback">今天怎么样？丢一句话…</div>`;
+}
+
+function renderLearn() {
+  const snap = LINES.map(statsOf);
+  const tabs = snap.map((s) =>
+    `<button data-line="${esc(s.id)}" class="${state.line === s.id ? 'on' : ''}">${esc(s.name)}</button>`
+  ).join('');
+
+  const s = statsOf(state.line);
+  let body;
+  if (!s.started) {
+    body = CD(`${state.line}　进度`, '—', '')
+      + `<button class="dash" data-act="import">+ 导入教材 / 真题</button>`
+      + `<div class="feedback">导入后按截止日期倒推，自动拆成每天该学的章节</div>`;
+  } else {
+    const doc = state.data.todayDocs.find((x) => x.line === state.line);
+    body = CD(`${state.line}　在队列`, String(s.queue), ' 条')
+      + `<div class="two">
+          <div class="tile"><h4>复检</h4><p>今日 ${s.due} 条</p></div>
+          <div class="tile"><h4>已掌握</h4><p>${s.mastered} 条</p></div>
+        </div>
+        <div class="list">
+          <div>累计入账<span>${s.total} 条</span></div>
+          <div>已掌握<span>${s.mastered} 条</span></div>
+          <div>在队列<span>${s.queue} 条</span></div>
+          <div>今日文档<span>${doc && doc.exists ? '已生成' : '未生成'}</span></div>
+        </div>`;
+  }
+  return `<div class="phead"><h2>学习</h2><span></span></div>
+    <div class="tabs">${tabs}</div>${body}`;
+}
+
+function renderNote() {
+  const items = state.data.notes.length
+    ? state.data.notes.map((n) =>
+        `<div class="item"><div class="t">${esc(n.t)}</div><div class="c">${esc(n.c)}</div></div>`).join('')
+    : `<div class="feedback">还没记过。丢一句话进来。</div>`;
+
+  return `<div class="phead"><h2>随手记</h2><span>导出后写入库</span></div>
+    <input class="input" id="noteIn" placeholder="丢一句话…">
+    <button class="dash" data-act="add">记下</button>${items}`;
+}
+
+function renderMe() {
+  const queue = LINES.map(statsOf).reduce((n, s) => n + s.queue, 0);
+  return `<div class="phead"><h2>我的</h2><span></span></div>
+    <div class="me-grid">
+      <button class="tile" data-act="ledger"><h4>错题队列</h4><p>在队列 ${queue} 条 · 隔三天复检</p></button>
+      <button class="tile" data-act="settle"><h4>结算今日复检</h4><p>把标好的对错写回队列</p></button>
+      <button class="tile" data-act="import"><h4>导入材料</h4><p>试卷 / 教材 / 路线</p></button>
+      <button class="tile" data-act="export"><h4>导出 json</h4><p>发给 Agent 写回 Obsidian</p></button>
+      <button class="tile" data-act="loadjson"><h4>导入 json</h4><p>从 Agent 拿回来的数据</p></button>
+    </div>`;
+}
+
+// 加页：在这里登记
+const PAGES = {
+  home:  { name: '主页',   render: renderHome },
+  today: { name: '今日',   render: renderToday },
+  learn: { name: '学习',   render: renderLearn },
+  note:  { name: '随手记', render: renderNote },
+  me:    { name: '我的',   render: renderMe }
+};
+
+/* ==========================================================================
+   块 5 · 操作
+   一个动作一个 case。加操作只需加一个 case，别动别的。
+   ========================================================================== */
+const actions = {
+  gen() {
+    const d = today();
+    state.data.todayDocs = LINES.map((line) => ({ line, exists: true, reviewCount: 0, hasTask: false }));
+    save();
+    toast(`已生成 ${d} 的今日文档（本地）。导出后写进库。`);
+  },
+  add() {
+    const inp = document.getElementById('noteIn');
+    const text = inp && inp.value.trim();
+    if (!text) return;
+    const d = new Date(), p = (n) => String(n).padStart(2, '0');
+    state.data.notes.unshift({
+      t: `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`,
+      c: text
+    });
+    save();
+    toast('已记下。');
+  },
+  ledger() {
+    const q = state.data.ledger.filter((r) => r.status !== '已掌握');
+    toast(q.length ? q.map((r) => `${r.line}｜${r.summary}｜下次 ${r.nextReview || '—'}`).join('<br>')
+                   : '队列是空的。');
+  },
+  settle() {
+    toast('结算由 Agent 做：导出 json 发我，我把对错写回队列。');
+  },
+  import() {
+    toast('导入由 Agent 做：把材料发我，说一句「这是哪条线 + 什么类型」。');
+  },
+  ask() { document.getElementById('sheet').classList.add('on');
+    setTimeout(() => document.getElementById('askIn').focus(), 240); },
+  close() { document.getElementById('sheet').classList.remove('on'); },
+  send() {
+    const text = document.getElementById('askIn').value.trim();
+    if (!text) return;
+    const d = new Date(), p = (n) => String(n).padStart(2, '0');
+    state.data.notes.unshift({ t: `${p(d.getMonth() + 1)}-${p(d.getDate())} ${p(d.getHours())}:${p(d.getMinutes())}`, c: text });
+    save();
+    document.getElementById('askIn').value = '';
+    document.getElementById('sheet').classList.remove('on');
+    toast('已记进随手记。导出发我，我回答。');
+  },
+  export() { exportJson(); },
+  loadjson() { importJson(); },
+  feedback(btn) {
+    const input = btn.querySelector('#feedIn');
+    if (!input) {
+      btn.classList.remove('feedback');
+      btn.classList.add('tile');
+      btn.innerHTML = '<input class="input" id="feedIn" placeholder="丢一句话…" style="margin:0">';
+      btn.querySelector('#feedIn').focus();
+      return;
+    }
+    const text = input.value.trim();
+    if (!text) return;
+    const d = new Date(), p = (n) => String(n).padStart(2, '0');
+    state.data.notes.unshift({ t: `${p(d.getMonth()+1)}-${p(d.getDate())}`, c: text });
+    save();
+    toast('已记下。');
+  }
+};
+
+/* ==========================================================================
+   块 6 · 渲染骨架与事件
+   一般不用改这里。加页/加操作请动块 4 和块 5。
+   ========================================================================== */
+function render() {
+  const page = PAGES[state.page];
+  if (!page) return;
+
+  document.getElementById('content').innerHTML = page.render();
+  document.getElementById('pageHead').innerHTML =
+    `<h2>${page.name}</h2><span>${fancyDate()}</span>`;
+
+  const nav = Object.entries(PAGES)
+    .map(([id, p]) => `<button data-page="${id}" class="${state.page === id ? 'on' : ''}">${p.name}</button>`)
+    .join('');
+  document.getElementById('sideNav').innerHTML = nav + '<div class="sep"></div>'
+    + '<button data-act="export">导出 json</button>';
+  document.getElementById('tabNav').innerHTML = nav;
+
+  document.getElementById('fab').classList.toggle('hidden', !(state.page === 'today' || state.page === 'learn'));
+}
+
+function measure() {
+  document.body.classList.toggle('is-wide', window.innerWidth >= 900);
+}
+
+document.addEventListener('click', (e) => {
+  const hit = e.target.closest('[data-page],[data-line],[data-act]');
+  if (!hit) return;
+
+  if (hit.dataset.page) {
+    set({ page: hit.dataset.page });
+  } else if (hit.dataset.line) {
+    set({ line: hit.dataset.line, page: state.page === 'home' ? 'learn' : state.page });
+  } else if (hit.dataset.act) {
+    const fn = actions[hit.dataset.act];
+    if (fn) { fn(hit); render(); }
+  }
+});
+
+window.addEventListener('resize', measure);
+
+// 离线：注册 service worker，断网也能开
+if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+  navigator.serviceWorker.register('sw.js');
+}
+
+// 启动
+load();
+measure();
+render();
+</script>
+</body>
+</html>
